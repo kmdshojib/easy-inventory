@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/db/setupDatabase";
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     // Await the params to access the id
     const { id } = await params; // Extract the ID from the route parameters
 
@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json({ error: 'Inventory item not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ message: 'Inventory item updated successfully' }, { status: 200 });
+        return NextResponse.json({ message: 'Inventory item updated successfully', status: 200 });
     } catch (error: any) {
         console.error('Error updating inventory item:', error);
         return NextResponse.json({ error: 'Internal server error', details: error.message }, { status: 500 });

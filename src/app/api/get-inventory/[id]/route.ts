@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/db/setupDatabase";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-    const { id } = params; // Extract the ID from the route parameters
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params; // Extract the ID from the route parameters
 
     if (!id) {
         return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 });
