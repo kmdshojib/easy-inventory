@@ -1,9 +1,10 @@
 import Database from 'better-sqlite3';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+// import { fileURLToPath } from 'url';
+// import { dirname, resolve } from 'path';
+import {  resolve } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
 // Use a temporary directory for SQLite on Vercel
 // const db = new Database(resolve(__dirname, './db.sqlite')); // Change this to a writable path if needed
