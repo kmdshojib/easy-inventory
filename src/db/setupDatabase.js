@@ -5,7 +5,10 @@ import { dirname, resolve } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const db = new Database(resolve(__dirname, './db.sqlite'));
+// Use a temporary directory for SQLite on Vercel
+// const db = new Database(resolve(__dirname, './db.sqlite')); // Change this to a writable path if needed
+const dbPath = resolve('/tmp', 'db.sqlite');
+const db = new Database(dbPath);
 
 // Initialize the database with basic settings
 function initializeDatabase() {
@@ -13,7 +16,7 @@ function initializeDatabase() {
   db.pragma('foreign_keys = ON');
 }
 
-// Create the inventory table if it doesn't exist
+// Create tables
 function createInventoryTable() {
   db.prepare(`
     CREATE TABLE IF NOT EXISTS inventory (
@@ -26,7 +29,6 @@ function createInventoryTable() {
   console.log('Inventory table initialized.');
 }
 
-// Create the user table if it doesn't exist
 function createUserTable() {
   db.prepare(`
     CREATE TABLE IF NOT EXISTS users (
