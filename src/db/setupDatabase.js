@@ -8,7 +8,30 @@ const __dirname = dirname(__filename);
 const db = new Database(resolve(__dirname, './db.sqlite'));
 
 // Initialize the database with basic settings
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+function initializeDatabase() {
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
+}
+
+// Create the inventory table if it doesn't exist
+function createInventoryTable() {
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS inventory (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      quantity INTEGER NOT NULL,
+      price REAL NOT NULL
+    )
+  `).run();
+  console.log('Inventory table initialized.');
+}
+
+// Execute the initialization and table creation
+function setupDatabase() {
+  initializeDatabase();
+  createInventoryTable();
+}
+
+setupDatabase();
 
 export default db;
