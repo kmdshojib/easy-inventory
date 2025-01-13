@@ -2,18 +2,27 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { HiUser, HiMail, HiLockClosed } from 'react-icons/hi'
+import { useUserStore } from '../../store/useUserStore'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { toast } from 'react-toastify'
 
 export default function SignUp() {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const signUp = useUserStore((state) => state.signUp)
+    const router = useRouter()
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Here you would typically handle the sign-up logic
-        console.log('Sign up attempted with:', { name, email, password })
+        const response: any = await signUp(name, email, password)
+        if (response) {
+            toast.success('User created successfully!')
+            router.push('/signin')
+        } else {
+            toast.error('Sign-up failed. Please try again.')
+        }
     }
 
     return (
@@ -31,66 +40,47 @@ export default function SignUp() {
                             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                                 Name
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <HiUser className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </div>
-                                <input
-                                    id="name"
-                                    name="name"
-                                    type="text"
-                                    autoComplete="name"
-                                    required
-                                    className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                                    placeholder="Name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                />
-                            </div>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                required
+                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
                         </div>
 
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                Email address
+                                Email
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <HiMail className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </div>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                                    placeholder="you@example.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder='example@mail.com'
+                                required
+                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
                         </div>
 
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                 Password
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <HiLockClosed className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </div>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="new-password"
-                                    required
-                                    className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                                    placeholder="••••••••"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </div>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                placeholder='Password'
+                                required
+                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
                         </div>
 
                         <div>
@@ -100,7 +90,7 @@ export default function SignUp() {
                                 type="submit"
                                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             >
-                                Sign up
+                                Sign Up
                             </motion.button>
                         </div>
                     </form>

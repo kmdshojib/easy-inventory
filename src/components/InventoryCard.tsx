@@ -4,23 +4,26 @@ import React, { useState } from 'react';
 import { HiCube, HiCurrencyDollar, HiPencil, HiTag, HiTrash } from 'react-icons/hi';
 import { motion } from 'framer-motion';
 import UpdateModal from './updateModal/UpdateModal';
+import { useInventoryStore } from '../store/useInventoryStore';
 
 interface InventoryItemProps {
-    id: string; // Add id prop
+    id: string;
     name: string;
     quantity: number;
     price: number;
-    onDelete: (id: string) => void; // Add delete handler
-    onUpdate: (id: string, updatedItem: Omit<InventoryItemProps, 'id'>) => void; // Add update handler
 }
 
-const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price, onDelete, onUpdate }) => {
-    const maxQuantity = 20;
-    const stockPercentage = Math.min((quantity / maxQuantity) * 100, 100);
-    const [isModalOpen, setIsModalOpen] = useState(false)
+const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const updateItem = useInventoryStore((state: any) => state.updateItem);
+    const deleteItem = useInventoryStore((state: any) => state.deleteItem);
+
+    const maxQuantity = 20; // Define the maximum quantity for stock level calculation
+    const stockPercentage = Math.min((quantity / maxQuantity) * 100, 100); // Calculate stock level percentage
 
     return (
         <motion.div
+            key={id}
             className="bg-white rounded-xl shadow-lg overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -74,8 +77,8 @@ const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price
                         </span>
                     </p>
                 </motion.div>
-                <div className=' flex justify-evenly'>
-                    <button type="button" onClick={() => onDelete(id)} className="mt-4 text-red-500 hover:text-red-700">
+                <div className='flex justify-evenly'>
+                    <button type="button" onClick={() => deleteItem(id)} className="mt-4 text-red-500 hover:text-red-700">
                         <HiTrash className="inline-block mr-1" /> Delete
                     </button>
                     <button
@@ -91,8 +94,8 @@ const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onUpdate={(updatedItem: any) => {
-                    onUpdate(id, updatedItem)
-                    setIsModalOpen(false)
+                    updateItem(id, updatedItem);
+                    setIsModalOpen(false);
                 }}
                 item={{ id, name, quantity, price }}
             />

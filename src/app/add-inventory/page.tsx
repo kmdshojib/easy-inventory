@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { HiPlus, HiArrowLeft } from 'react-icons/hi'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useInventoryStore } from '../../store/useInventoryStore'
 
 interface FormData {
     name: string
@@ -13,17 +14,21 @@ interface FormData {
 }
 
 export default function AddInventory() {
-    const [formData, setFormData] = useState<any>({
+    const [formData, setFormData] = useState<FormData>({
         name: '',
         quantity: 0,
         price: 0,
     })
     const [errors, setErrors] = useState<Partial<FormData>>({})
     const router = useRouter()
+    const addItem = useInventoryStore((state) => state.addItem)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
-        setFormData((prev: any) => ({ ...prev, [name]: name === 'name' ? value : Number(value) }))
+        setFormData((prev) => ({
+            ...prev,
+            [name]: name === 'name' ? value : parseFloat(value) || 0
+        }))
     }
 
     const validateForm = (): boolean => {
@@ -35,13 +40,15 @@ export default function AddInventory() {
         return Object.keys(newErrors).length === 0
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (validateForm()) {
-            // Here you would typically send the data to your backend or state management system
-            console.log('Form submitted:', formData)
-            // For now, we'll just redirect back to the main page
-            router.push('/')
+            try {
+                await addItem(formData)
+                router.push('/')
+            } catch (error) {
+                console.error('Failed to add item:', error)
+            }
         }
     }
 
