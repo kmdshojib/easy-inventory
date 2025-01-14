@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcrypt";
 import db from "@/db/setupDatabase";
-import bcrypt from "bcrypt"; // Make sure to install bcrypt
+
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    password: string;
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -13,7 +20,7 @@ export async function POST(req: NextRequest) {
 
         // Fetch user from the database
         const statement = db.prepare(`SELECT * FROM users WHERE email = ?`);
-        const user = statement.get(email);
+        const user = statement.get(email) as User;
 
         if (!user) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });

@@ -12,8 +12,8 @@ export async function DELETE(
     }
 
     try {
-        const statement = db.prepare(`DELETE FROM inventory WHERE id = ?`);
-        const result = statement.run(id);
+        const statement = await db.prepare(`DELETE FROM inventory WHERE id = ?`);
+        const result = await statement.run(id);
 
         if (result.changes === 0) {
             return NextResponse.json({ error: 'Inventory item not found' }, { status: 404 });

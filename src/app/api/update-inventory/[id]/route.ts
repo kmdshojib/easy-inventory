@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import db from "@/db/setupDatabase";
+import { NextRequest, NextResponse } from "next/server";
+
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     // Await the params to access the id
@@ -20,12 +21,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         }
 
         // Update the inventory item in the database
-        const statement = db.prepare(`
+        const statement =await db.prepare(`
             UPDATE inventory
             SET name = ?, quantity = ?, price = ?
             WHERE id = ?
         `);
-        const result = statement.run(name, quantity, price, id); // Execute the update
+        const result = await statement.run(name, quantity, price, id); // Execute the update
 
         if (result.changes === 0) {
             return NextResponse.json({ error: 'Inventory item not found' }, { status: 404 });

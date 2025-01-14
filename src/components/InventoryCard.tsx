@@ -5,6 +5,8 @@ import { HiCube, HiCurrencyDollar, HiPencil, HiTag, HiTrash } from 'react-icons/
 import { motion } from 'framer-motion';
 import UpdateModal from './updateModal/UpdateModal';
 import { useInventoryStore } from '../store/useInventoryStore';
+import { useUserStore } from '@/store/useUserStore';
+import { toast } from 'react-toastify';
 
 interface InventoryItemProps {
     id: string;
@@ -15,11 +17,29 @@ interface InventoryItemProps {
 
 const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const user = useUserStore(state => state.user);
     const updateItem = useInventoryStore((state: any) => state.updateItem);
     const deleteItem = useInventoryStore((state: any) => state.deleteItem);
 
-    const maxQuantity = 20; // Define the maximum quantity for stock level calculation
-    const stockPercentage = Math.min((quantity / maxQuantity) * 100, 100); // Calculate stock level percentage
+    const handleDelete = async () => {
+        try {
+            await deleteItem(id);
+            toast.success("Item deleted successfully!");
+        } catch (error: any) {
+            toast.error(error.message);
+        }
+    };
+
+    const handleUpdate = () => {
+        if (!user) {
+            toast.error("You must be logged in to update an item. Please log in or sign up.");
+            return;
+        }
+        setIsModalOpen(true);
+    };
+
+    const maxQuantity = 20;
+    const stockPercentage = Math.min((quantity / maxQuantity) * 100, 100);
 
     return (
         <motion.div
@@ -78,12 +98,12 @@ const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price
                     </p>
                 </motion.div>
                 <div className='flex justify-evenly'>
-                    <button type="button" onClick={() => deleteItem(id)} className="mt-4 text-red-500 hover:text-red-700">
+                    <button type="button" onClick={handleDelete} className="mt-4 text-red-500 hover:text-red-700">
                         <HiTrash className="inline-block mr-1" /> Delete
                     </button>
                     <button
                         type='button'
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={handleUpdate}
                         className="text-blue-500 hover:text-blue-700 transition-colors mt-4"
                     >
                         <HiPencil className="inline-block mr-1" /> Update

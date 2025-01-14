@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { fetchInventoryItems, addInventoryItem, updateInventoryItem, deleteInventoryItem } from '../utils/api';
+import { useUserStore } from './useUserStore';
 
 interface InventoryItem {
   id: string;
@@ -35,6 +36,10 @@ export const useInventoryStore = create<InventoryState>((set) => ({
     }));
   },
   deleteItem: async (id) => {
+    const user = useUserStore.getState().user;
+    if (!user) {
+      throw new Error("User must be logged in to delete an item.");
+    }
     const strId = id.toString();
     console.log(`Deleting item with ID: ${strId}`);
     await deleteInventoryItem(strId);
