@@ -1,56 +1,90 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { HiPlus, HiArrowLeft } from 'react-icons/hi'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useInventoryStore } from '../../store/useInventoryStore'
+import { useUserStore } from '@/store/useUserStore'
+import { toast } from 'react-toastify'
 
 interface FormData {
     name: string
-    quantity: number
-    price: number
+    quantity: number | string
+    price: number | string
 }
 
 export default function AddInventory() {
     const [formData, setFormData] = useState<FormData>({
         name: '',
-        quantity: 0,
-        price: 0,
+        quantity: '',
+        price: '',
     })
     const [errors, setErrors] = useState<Partial<FormData>>({})
     const router = useRouter()
     const addItem = useInventoryStore((state) => state.addItem)
+    const user = useUserStore((state) => state.user)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === 'name' ? value : parseFloat(value) || 0
-        }))
+        if (name === 'name') {
+            setFormData(prev => ({ ...prev, [name]: value }))
+        } else {
+            const numValue = value === '' ? '' : Math.max(0, parseFloat(value) || 0)
+            setFormData(prev => ({ ...prev, [name]: numValue }))
+        }
     }
 
     const validateForm = (): boolean => {
-        const newErrors: Partial<any> = {}
-        if (!formData.name.trim()) newErrors.name = 'Name is required'
-        if (formData.quantity < 0) newErrors.quantity = 'Quantity must be 0 or greater'
-        if (formData.price < 0) newErrors.price = 'Price must be 0 or greater'
+        const newErrors: Partial<FormData> = {}
+        
+        if (!formData.name.trim()) {
+            newErrors.name = 'Name is required'
+        }
+        
+        const quantityNum = typeof formData.quantity === 'string' ? 
+            parseFloat(formData.quantity) : formData.quantity;
+        if (formData.quantity === '' || isNaN(quantityNum) || quantityNum < 0) {
+            newErrors.quantity = 'Quantity must be 0 or greater'
+        }
+        
+        const priceNum = typeof formData.price === 'string' ? 
+            parseFloat(formData.price) : formData.price;
+        if (formData.price === '' || isNaN(priceNum) || priceNum < 0) {
+            newErrors.price = 'Price must be 0 or greater'
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        
+        if (!user) {
+            toast.error("You must be logged in to add items")
+            router.push('/signin')
+            return
+        }
+
         if (validateForm()) {
             try {
-                await addItem(formData)
+                const submitData = {
+                    name: formData.name,
+                    quantity: typeof formData.quantity === 'string' ? 0 : formData.quantity,
+                    price: typeof formData.price === 'string' ? 0 : formData.price,
+                }
+                await addItem(submitData)
+                toast.success('Item added successfully!')
                 router.push('/')
             } catch (error) {
                 console.error('Failed to add item:', error)
+                toast.error('Failed to add item. Please try again.')
             }
         }
     }
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-12 px-4 sm:px-6 lg:px-8">
@@ -92,7 +126,7 @@ export default function AddInventory() {
                                 value={formData.quantity}
                                 onChange={handleChange}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                required
+                                placeholder="Enter quantity"
                                 min="0"
                             />
                             {errors.quantity && <p className="mt-1 text-sm text-red-600">{errors.quantity}</p>}
@@ -106,7 +140,7 @@ export default function AddInventory() {
                                 value={formData.price}
                                 onChange={handleChange}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                required
+                                placeholder="Enter price"
                                 min="0"
                                 step="0.01"
                             />

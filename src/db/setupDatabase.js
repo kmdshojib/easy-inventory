@@ -1,52 +1,44 @@
 import Database from 'better-sqlite3';
-// import { fileURLToPath } from 'url';
-// import { dirname, resolve } from 'path';
-import {  resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+import createInventoryTable from "./createInventoryTable.js";
+import createUserTable from "./createUserTable.js";
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-// Use a temporary directory for SQLite on Vercel
-// const db = new Database(resolve(__dirname, './db.sqlite')); // Change this to a writable path if needed
-const dbPath = resolve('/tmp', 'db.sqlite');
-const db = new Database(dbPath);
+// Different database paths for development and production
+const dbPath = process.env.NODE_ENV === 'production'
+  ? resolve('/tmp', 'db.sqlite')
+  : resolve(__dirname, './db.sqlite');
+
+let db;
+
+try {
+  db = new Database(dbPath);
+  console.log(`Database initialized at: ${dbPath}`);
+} catch (error) {
+  console.error('Failed to initialize database:', error);
+  // Fallback to memory database if file access fails
+  db = new Database(':memory:');
+  console.log('Falling back to in-memory database');
+}
 
 // Initialize the database with basic settings
 function initializeDatabase() {
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
-}
-
-// Create tables
-function createInventoryTable() {
-  db.prepare(`
-    CREATE TABLE IF NOT EXISTS inventory (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      quantity INTEGER NOT NULL,
-      price REAL NOT NULL
-    )
-  `).run();
-  console.log('Inventory table initialized.');
-}
-
-function createUserTable() {
-  db.prepare(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      email TEXT NOT NULL UNIQUE,
-      password TEXT NOT NULL
-    )
-  `).run();
-  console.log('User table initialized.');
+  try {
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
+  } catch (error) {
+    console.error('Error initializing database settings:', error);
+  }
 }
 
 // Execute the initialization and table creation
 function setupDatabase() {
   initializeDatabase();
-  createInventoryTable();
-  createUserTable();
+  createInventoryTable(db);
+  createUserTable(db);
 }
 
 setupDatabase();

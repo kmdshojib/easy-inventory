@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { HiX } from 'react-icons/hi'
 import { createPortal } from 'react-dom'
+import { toast } from 'react-toastify'
 
 interface UpdateModalProps {
     isOpen: boolean
@@ -14,8 +15,8 @@ interface UpdateModalProps {
 
 const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, onUpdate, item }) => {
     const [name, setName] = useState(item.name)
-    const [quantity, setQuantity] = useState(item.quantity)
-    const [price, setPrice] = useState(item.price)
+    const [quantity, setQuantity] = useState<number | string>(item.quantity)
+    const [price, setPrice] = useState<number | string>(item.price)
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
@@ -25,7 +26,31 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, onUpdate, it
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        onUpdate({ name, quantity, price })
+
+        // Validate and convert values
+        const quantityNum = typeof quantity === 'string' ? parseFloat(quantity) : quantity
+        const priceNum = typeof price === 'string' ? parseFloat(price) : price
+
+        if (!name.trim() || isNaN(quantityNum) || isNaN(priceNum) || quantityNum < 0 || priceNum < 0) {
+            toast.error('Please enter valid values')
+            return
+        }
+
+        onUpdate({
+            name,
+            quantity: quantityNum,
+            price: priceNum
+        })
+        toast.success('Item updated successfully!')
+    }
+
+    const handleNumberChange = (value: string, setter: (value: number | string) => void) => {
+        if (value === '') {
+            setter('')
+        } else {
+            const num = Math.max(0, parseFloat(value) || 0)
+            setter(num)
+        }
     }
 
     const modalContent = (
@@ -48,7 +73,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, onUpdate, it
                         >
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-2xl font-bold text-gray-900">Update Item</h2>
-                                <button 
+                                <button
                                     type='button'
                                     title='close modal'
                                     onClick={onClose}
@@ -79,10 +104,11 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, onUpdate, it
                                         type="number"
                                         id="quantity"
                                         value={quantity}
-                                        onChange={(e) => setQuantity(Number(e.target.value))}
+                                        onChange={(e) => handleNumberChange(e.target.value, setQuantity)}
+                                        placeholder='Please enter new Quantity!'
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 py-2"
-                                        required
                                         min="0"
+                                        required
                                     />
                                 </div>
                                 <div>
@@ -93,11 +119,12 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, onUpdate, it
                                         type="number"
                                         id="price"
                                         value={price}
-                                        onChange={(e) => setPrice(Number(e.target.value))}
+                                        onChange={(e) => handleNumberChange(e.target.value, setPrice)}
+                                        placeholder='please enter new Price!'
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 py-2"
-                                        required
                                         min="0"
                                         step="0.01"
+                                        required
                                     />
                                 </div>
                                 <div className="flex justify-end space-x-3 mt-6">
