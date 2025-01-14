@@ -1,5 +1,6 @@
+import db from '@/db/setupDatabase';
 import { NextRequest, NextResponse } from 'next/server';
-import db from './../../../db/setupDatabase';
+
 
 export async function POST(req: NextRequest) {
     try {
@@ -9,11 +10,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
         }
 
-        const statement = db.prepare(`
+        const statement:any = await db.prepare(`
             INSERT INTO inventory (name, quantity, price)
             VALUES (?, ?, ?)
         `);
-        const result = statement.run(name, quantity, price);
+        const result = await statement.run(name, quantity, price);
 
         if (result.changes === 0) {
             return NextResponse.json({ error: 'Failed to add inventory item' }, { status: 500 });

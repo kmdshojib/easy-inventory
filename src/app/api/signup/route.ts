@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "@/db/setupDatabase";
 import bcrypt from "bcrypt"; // Make sure to install bcrypt
+import db from "@/db/setupDatabase";
 
 export async function POST(req: NextRequest) {
     try {
@@ -15,11 +15,11 @@ export async function POST(req: NextRequest) {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Insert user into the database
-        const statement = db.prepare(`
+        const statement = await db.prepare(`
             INSERT INTO users (name, email, password)
             VALUES (?, ?, ?)
         `);
-        statement.run(name, email, hashedPassword);
+        await statement.run(name, email, hashedPassword);
 
         return NextResponse.json({ message: 'User created successfully' }, { status: 201 });
     } catch (error) {

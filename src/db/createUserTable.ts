@@ -1,4 +1,6 @@
-export default function createUserTable(db) {
+import type Database from 'better-sqlite3';
+
+export default function createUserTable(db: Database.Database) {
   db.prepare(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

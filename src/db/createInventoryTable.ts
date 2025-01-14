@@ -1,4 +1,6 @@
-export default function createInventoryTable(db) {
+import type Database from 'better-sqlite3';
+
+export default function createInventoryTable(db: Database.Database) {
   db.prepare(`
     CREATE TABLE IF NOT EXISTS inventory (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

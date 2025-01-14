@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import db from "@/db/setupDatabase";
+import { NextRequest, NextResponse } from "next/server";
+
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params; // Extract the ID from the route parameters
@@ -10,7 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     try {
         // Query to get a single inventory item by ID
-        const statement = db.prepare(`SELECT * FROM inventory WHERE id = ?`);
+        const statement = await db.prepare(`SELECT * FROM inventory WHERE id = ?`);
         const inventoryItem = statement.get(id); // Fetch the item
 
         if (!inventoryItem) {
