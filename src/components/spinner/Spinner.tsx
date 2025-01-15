@@ -15,16 +15,11 @@ export default function Spinner({ size = 'md' }: SpinnerProps) {
 
     return (
         <div className="flex justify-center items-center">
-            <motion.div
-                className={`border-t-4 border-blue-500 border-solid rounded-full ${sizeClasses[size]}`}
-                aria-label="Loading"
+            <div 
+                role="status"
                 data-testid="spinner"
-                animate={{ rotate: 360 }}
-                transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    ease: 'linear'
-                }}
+                aria-label="Loading"
+                className={`border-t-4 border-blue-500 border-solid rounded-full ${sizeClasses[size]}`}
             />
         </div>
     )
