@@ -4,16 +4,25 @@ import React, { useEffect } from 'react'
 import InventoryCard from "@/components/InventoryCard"
 import { motion } from 'framer-motion'
 import { HiPlus } from 'react-icons/hi'
-import Link from 'next/link';
-import { useInventoryStore } from '../store/useInventoryStore';
+import Link from 'next/link'
+import { useInventoryStore } from '../store/useInventoryStore'
+import Spinner from '@/components/spinner/Spinner'
 
 export default function Home() {
-  const inventoryItems = useInventoryStore((state) => state.inventoryItems);
-  const fetchItems = useInventoryStore((state) => state.fetchItems);
+  const inventoryItems = useInventoryStore((state) => state.inventoryItems)
+  const fetchItems = useInventoryStore((state) => state.fetchItems)
+  const isLoading = useInventoryStore((state) => state.isLoading)
 
   useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
+    const fetchData = async () => {
+        try {
+            await fetchItems();
+        } catch (error) {
+            console.error('Error fetching items:', error);
+        }
+    };
+    fetchData();
+  }, [fetchItems])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-12 px-4 sm:px-6 lg:px-8">
@@ -37,25 +46,35 @@ export default function Home() {
             </motion.button>
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {inventoryItems.map((item:any) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: parseInt(item.id) * 0.1 }}
-            >
-              <InventoryCard
-                id={item.id}
-                name={item.name}
-                quantity={item.quantity}
-                price={item.price}
-              />
-            </motion.div>
-          ))}
-        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Spinner />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {inventoryItems.map((item: any, index: number) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.3,
+                  delay: index * 0.1,
+                  ease: "easeOut"
+                }}
+              >
+                <InventoryCard
+                  id={item.id}
+                  name={item.name}
+                  quantity={item.quantity}
+                  price={item.price}
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
 }
-

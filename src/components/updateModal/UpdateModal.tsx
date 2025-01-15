@@ -42,6 +42,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, onUpdate, it
             price: priceNum
         })
         toast.success('Item updated successfully!')
+        onClose()
     }
 
     const handleNumberChange = (value: string, setter: (value: number | string) => void) => {
@@ -74,8 +75,8 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, onUpdate, it
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-2xl font-bold text-gray-900">Update Item</h2>
                                 <button
-                                    type='button'
-                                    title='close modal'
+                                    type="button"
+                                    aria-label="Close modal"
                                     onClick={onClose}
                                     className="text-gray-500 hover:text-gray-700 transition-colors"
                                 >
@@ -105,7 +106,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, onUpdate, it
                                         id="quantity"
                                         value={quantity}
                                         onChange={(e) => handleNumberChange(e.target.value, setQuantity)}
-                                        placeholder='Please enter new Quantity!'
+                                        placeholder="Please enter new Quantity!"
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 py-2"
                                         min="0"
                                         required
@@ -120,7 +121,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, onUpdate, it
                                         id="price"
                                         value={price}
                                         onChange={(e) => handleNumberChange(e.target.value, setPrice)}
-                                        placeholder='please enter new Price!'
+                                        placeholder="Please enter new Price!"
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 py-2"
                                         min="0"
                                         step="0.01"
@@ -137,6 +138,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, onUpdate, it
                                     </button>
                                     <button
                                         type="submit"
+                                        aria-label="Submit update"
                                         className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                                     >
                                         Update
