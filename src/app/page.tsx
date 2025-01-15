@@ -18,7 +18,8 @@ export default function Home() {
     const fetchData = async () => {
       try {
         await fetchItems();
-      } catch (error) {
+      } catch (error:any) {
+        console.log(error)
         toast.error('Failed to load inventory items');
       }
     };

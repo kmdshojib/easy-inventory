@@ -35,16 +35,16 @@ jest.mock('../components/updateModal/UpdateModal', () => ({
 // Improved framer-motion mock
 jest.mock('framer-motion', () => ({
     motion: {
-        h1: ({ children, className, ...props }: any) => (
+        h1: ({ children, className, }: any) => (
             <h1 className={className}>{children}</h1>
         ),
-        div: ({ children, className, ...props }: any) => (
+        div: ({ children, className, }: any) => (
             <div className={className}>{children}</div>
         ),
-        button: ({ children, className, ...props }: any) => (
+        button: ({ children, className, }: any) => (
             <button className={className}>{children}</button>
         ),
-        span: ({ children, className, ...props }: any) => (
+        span: ({ children, className}: any) => (
             <span className={className}>{children}</span>
         )
     },
