@@ -42,9 +42,10 @@ export const useUserStore = create<UserState>((set) => ({
         try {
             const response = await fetchSignUp(name, email, password);
             if (response) {
-                const user = { id: response.id, name, email };
-                setStorageValue('user', user);
-                set({ user });
+                // const user = { id: response.id, name, email };
+                // setStorageValue('user', user);
+                // set({ user });
+
                 return response;
             }
         } catch (error) {

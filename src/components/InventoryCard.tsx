@@ -55,23 +55,21 @@ const InventoryCard: React.FC<any> = ({ id, name, quantity, price }) => {
             </div>
             <div className="p-6">
                 <div className="space-y-4">
-                    {[
-                        { Icon: HiTag, label: "Name", value: name },
-                        { Icon: HiCube, label: "Quantity", value: quantity },
-                        { Icon: HiCurrencyDollar, label: "Price", value: `$${price}` },
-                    ].map(({ Icon, label, value }, index) => (
-                        <motion.div
-                            key={label}
-                            className="flex items-center text-gray-700"
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 + index * 0.1 }}
-                        >
-                            <Icon className="w-5 h-5 mr-3 text-blue-500" />
-                            <span className="font-medium mr-2">{label}:</span>
-                            <span className="text-gray-900">{value}</span>
-                        </motion.div>
-                    ))}
+                    <div className="flex items-center text-gray-700">
+                        <HiTag className="w-5 h-5 mr-3 text-blue-500" />
+                        <span className="font-medium mr-2">Name:</span>
+                        <span data-testid={`item-name-${id}`} className="text-gray-900">{name}</span>
+                    </div>
+                    <div className="flex items-center text-gray-700">
+                        <HiCube className="w-5 h-5 mr-3 text-blue-500" />
+                        <span className="font-medium mr-2">Quantity:</span>
+                        <span data-testid={`item-quantity-${id}`} className="text-gray-900">{quantity}</span>
+                    </div>
+                    <div className="flex items-center text-gray-700">
+                        <HiCurrencyDollar className="w-5 h-5 mr-3 text-blue-500" />
+                        <span className="font-medium mr-2">Price:</span>
+                        <span data-testid={`item-price-${id}`} className="text-gray-900">${price}</span>
+                    </div>
                 </div>
                 
                 <motion.div
