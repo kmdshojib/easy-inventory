@@ -17,7 +17,17 @@ interface InventoryItemProps {
 const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price, onDelete, onUpdate }) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const maxQuantity = 20
-    const stockPercentage = Math.min((quantity / maxQuantity) * 100, 100)
+    // const stockPercentage = Math.min((quantity / maxQuantity) * 100, 100)
+
+    const getStockColor = () => {
+        if (quantity <= 5) return 'bg-red-500'
+        if (quantity <= 15) return 'bg-yellow-500'
+        return 'bg-green-500'
+    }
+
+    const getStockPercentage = () => {
+        return Math.min((quantity / maxQuantity) * 100, 100)
+    }
 
     return (
         <>
@@ -77,10 +87,13 @@ const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price
                     >
                         <div className="bg-gray-200 rounded-full h-2 overflow-hidden">
                             <motion.div
-                                className="bg-blue-500 h-full"
-                                initial={{ width: 0 }}
-                                animate={{ width: `${stockPercentage}%` }}
-                                transition={{ duration: 0.8, ease: "easeOut" }}
+                                data-testid="stock-bar"
+                                role="progressbar"
+                                aria-valuenow={getStockPercentage()}
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                className={`h-2 rounded-full ${getStockColor()}`}
+                                style={{ width: `${getStockPercentage()}%` }}
                             />
                         </div>
                         <p className="text-sm mt-2 font-medium text-gray-600">
@@ -109,4 +122,3 @@ const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price
 }
 
 export default InventoryCard
-

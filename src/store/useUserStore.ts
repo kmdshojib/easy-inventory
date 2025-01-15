@@ -1,8 +1,22 @@
 import { create } from 'zustand';
 import { fetchSignIn, fetchSignUp } from '../utils/userService';
-// Make sure to create these API functions
 
-interface UserState {
+// Storage utility
+const getStorageValue = (key: string) => {
+    if (typeof window !== 'undefined') {
+        const item = window.localStorage.getItem(key);
+        return item ? JSON.parse(item) : null;
+    }
+    return null;
+};
+
+const setStorageValue = (key: string, value: any) => {
+    if (typeof window !== 'undefined') {
+        window.localStorage.setItem(key, JSON.stringify(value));
+    }
+};
+
+export interface UserState {
     user: { id: string; name: string; email: string } | null;
     signIn: (email: string, password: string) => Promise<any>;
     signUp: (name: string, email: string, password: string) => Promise<any>;
@@ -10,11 +24,12 @@ interface UserState {
 }
 
 export const useUserStore = create<UserState>((set) => ({
-    user: null,
+    user: getStorageValue('user'),
     signIn: async (email, password) => {
         try {
             const response = await fetchSignIn(email, password);
             if (response) {
+                setStorageValue('user', response.user);
                 set({ user: response.user });
                 return response;
             }
@@ -27,7 +42,9 @@ export const useUserStore = create<UserState>((set) => ({
         try {
             const response = await fetchSignUp(name, email, password);
             if (response) {
-                set({ user: { id: response.id, name, email } });
+                const user = { id: response.id, name, email };
+                setStorageValue('user', user);
+                set({ user });
                 return response;
             }
         } catch (error) {
@@ -35,5 +52,10 @@ export const useUserStore = create<UserState>((set) => ({
             return null;
         }
     },
-    clearUser: () => set({ user: null }),
-})); 
+    clearUser: () => {
+        if (typeof window !== 'undefined') {
+            window.localStorage.removeItem('user');
+        }
+        set({ user: null });
+    },
+}));

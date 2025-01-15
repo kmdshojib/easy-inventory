@@ -11,40 +11,115 @@ interface InventoryItem {
 
 interface InventoryState {
   inventoryItems: InventoryItem[];
+  isLoading: boolean;
+  isMutating: boolean;
+  error: string | null;
   fetchItems: () => Promise<void>;
   addItem: (item: Omit<InventoryItem, 'id'>) => Promise<void>;
   updateItem: (id: string, updatedItem: Omit<InventoryItem, 'id'>) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
 }
 
-export const useInventoryStore = create<InventoryState>((set) => ({
+export const useInventoryStore = create<InventoryState>((set, get) => ({
   inventoryItems: [],
+  isLoading: false,
+  isMutating: false,
+  error: null,
+
   fetchItems: async () => {
-    const items = await fetchInventoryItems();
-    set({ inventoryItems: items });
+    if (get().isLoading) return;
+    
+    try {
+      set({ isLoading: true, error: null });
+      const items = await fetchInventoryItems();
+      set({ inventoryItems: items });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch inventory items';
+      set({ error: errorMessage });
+      console.error('Failed to fetch inventory items:', error);
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
   },
+
   addItem: async (item) => {
-    const newItem = await addInventoryItem(item);
-    set((state) => ({ inventoryItems: [...state.inventoryItems, newItem] }));
+    if (get().isMutating) return;
+
+    try {
+      set({ isMutating: true, error: null });
+      const newItem = await addInventoryItem(item);
+      
+      // Optimistic update
+      set((state) => ({
+        inventoryItems: [...state.inventoryItems, { ...item, id: newItem.id }]
+      }));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to add item';
+      set({ error: errorMessage });
+      console.error('Failed to add inventory item:', error);
+      throw error;
+    } finally {
+      set({ isMutating: false });
+    }
   },
+
   updateItem: async (id, updatedItem) => {
-    await updateInventoryItem(id, updatedItem);
-    set((state) => ({
-      inventoryItems: state.inventoryItems.map((item) =>
-        item.id === id ? { ...item, ...updatedItem } : item
-      ),
-    }));
+    if (get().isMutating) return;
+    const previousItems = get().inventoryItems;
+
+    try {
+      set({ isMutating: true, error: null });
+      
+      // Optimistic update
+      set((state) => ({
+        inventoryItems: state.inventoryItems.map((item) =>
+          item.id === id ? { ...item, ...updatedItem } : item
+        )
+      }));
+
+      // Perform the actual update
+      await updateInventoryItem(id, updatedItem);
+    } catch (error) {
+      // Rollback on error
+      set({ inventoryItems: previousItems });
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update item';
+      set({ error: errorMessage });
+      console.error('Failed to update inventory item:', error);
+      throw error;
+    } finally {
+      set({ isMutating: false });
+    }
   },
+
   deleteItem: async (id) => {
     const user = useUserStore.getState().user;
     if (!user) {
       throw new Error("User must be logged in to delete an item.");
     }
-    const strId = id.toString();
-    console.log(`Deleting item with ID: ${strId}`);
-    await deleteInventoryItem(strId);
-    set((state) => ({
-      inventoryItems: state.inventoryItems.filter((item) => item.id !== strId),
-    }));
+
+    if (get().isMutating) return;
+    const previousItems = get().inventoryItems;
+
+    try {
+      set({ isMutating: true, error: null });
+      const strId = id.toString();
+
+      // Optimistic update
+      set((state) => ({
+        inventoryItems: state.inventoryItems.filter((item) => item.id !== id)
+      }));
+
+      // Perform the actual delete
+      await deleteInventoryItem(strId);
+    } catch (error) {
+      // Rollback on error
+      set({ inventoryItems: previousItems });
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete item';
+      set({ error: errorMessage });
+      throw error;
+    } finally {
+      set({ isMutating: false });
+    }
   },
-})); 
+}));

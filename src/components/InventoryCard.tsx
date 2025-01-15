@@ -8,14 +8,14 @@ import { useInventoryStore } from '../store/useInventoryStore';
 import { useUserStore } from '@/store/useUserStore';
 import { toast } from 'react-toastify';
 
-interface InventoryItemProps {
-    id: string;
-    name: string;
-    quantity: number;
-    price: number;
-}
+// interface InventoryItemProps {
+//     id: string;
+//     name: string;
+//     quantity: number;
+//     price: number;
+// }
 
-const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price }) => {
+const InventoryCard: React.FC<any> = ({ id, name, quantity, price }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const user = useUserStore(state => state.user);
     const updateItem = useInventoryStore((state: any) => state.updateItem);
@@ -43,7 +43,7 @@ const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price
 
     return (
         <motion.div
-            key={id}
+            data-testid={`inventory-card-${id}`}
             className="bg-white rounded-xl shadow-lg overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -58,7 +58,7 @@ const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price
                     {[
                         { Icon: HiTag, label: "Name", value: name },
                         { Icon: HiCube, label: "Quantity", value: quantity },
-                        { Icon: HiCurrencyDollar, label: "Price", value: `$${price.toFixed(2)}` },
+                        { Icon: HiCurrencyDollar, label: "Price", value: `$${price}` },
                     ].map(({ Icon, label, value }, index) => (
                         <motion.div
                             key={label}
@@ -73,6 +73,7 @@ const InventoryCard: React.FC<InventoryItemProps> = ({ id, name, quantity, price
                         </motion.div>
                     ))}
                 </div>
+                
                 <motion.div
                     className="mt-6"
                     initial={{ opacity: 0 }}
