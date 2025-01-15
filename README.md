@@ -48,7 +48,7 @@ A modern inventory management system built with Next.js that helps businesses tr
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/kmdshojib/easyinventory.git
+git clone https://github.com/kmdshojib/easy-inventory.git
 cd easyinventory
 ```
 
