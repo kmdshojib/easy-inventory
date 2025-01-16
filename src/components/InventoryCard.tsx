@@ -53,7 +53,7 @@ const InventoryCard: React.FC<any> = ({ id, name, quantity, price }) => {
         >
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
                 <Link href={`/inventory/${id}`}>
-                    <h2 className="text-xl font-bold text-white cursor-pointer ">{name}</h2>
+                    <h2 className="text-xl font-bold text-white cursor-pointer hover:underline hover:text-blue-200">{name}</h2>
                 </Link>
             </div>
             <div className="p-6">
