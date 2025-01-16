@@ -7,6 +7,7 @@ import UpdateModal from './updateModal/UpdateModal';
 import { useInventoryStore } from '../store/useInventoryStore';
 import { useUserStore } from '@/store/useUserStore';
 import { toast } from 'react-toastify';
+import Link from 'next/link';
 
 // interface InventoryItemProps {
 //     id: string;
@@ -51,7 +52,9 @@ const InventoryCard: React.FC<any> = ({ id, name, quantity, price }) => {
             whileHover={{ y: -5, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
         >
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
-                <h2 className="text-xl font-bold text-white">{name}</h2>
+                <Link href={`/inventory/${id}`}>
+                    <h2 className="text-xl font-bold text-white cursor-pointer ">{name}</h2>
+                </Link>
             </div>
             <div className="p-6">
                 <div className="space-y-4">
@@ -71,7 +74,7 @@ const InventoryCard: React.FC<any> = ({ id, name, quantity, price }) => {
                         <span data-testid={`item-price-${id}`} className="text-gray-900">${price}</span>
                     </div>
                 </div>
-                
+
                 <motion.div
                     className="mt-6"
                     initial={{ opacity: 0 }}

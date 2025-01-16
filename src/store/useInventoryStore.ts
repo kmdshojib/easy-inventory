@@ -18,6 +18,8 @@ interface InventoryState {
   addItem: (item: Omit<InventoryItem, 'id'>) => Promise<void>;
   updateItem: (id: string, updatedItem: Omit<InventoryItem, 'id'>) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
+  fetchItemById: (id: string) => Promise<InventoryItem>;
+  currentItem: InventoryItem | null;
 }
 
 export const useInventoryStore = create<InventoryState>((set, get) => ({
@@ -25,6 +27,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   isLoading: false,
   isMutating: false,
   error: null,
+  currentItem: null,
 
   fetchItems: async () => {
     if (get().isLoading) return;
@@ -65,6 +68,11 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   },
 
   updateItem: async (id, updatedItem) => {
+    const user = useUserStore.getState().user;
+    if (!user) {
+        throw new Error('User must be logged in to update an item.');
+    }
+
     if (get().isMutating) return;
     const previousItems = get().inventoryItems;
 
@@ -85,7 +93,6 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       set({ inventoryItems: previousItems });
       const errorMessage = error instanceof Error ? error.message : 'Failed to update item';
       set({ error: errorMessage });
-      console.error('Failed to update inventory item:', error);
       throw error;
     } finally {
       set({ isMutating: false });
@@ -120,6 +127,23 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       throw error;
     } finally {
       set({ isMutating: false });
+    }
+  },
+
+  fetchItemById: async (id: string) => {
+    try {
+      set({ isLoading: true, error: null });
+      const response = await fetch(`/api/get-inventory/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch item');
+      const data = await response.json();
+      set({ currentItem: data });
+      return data;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch item';
+      set({ error: message });
+      throw error;
+    } finally {
+      set({ isLoading: false });
     }
   },
 }));
