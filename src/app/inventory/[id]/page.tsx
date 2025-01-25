@@ -73,7 +73,7 @@ export default function InventoryItemPage() {
 
     const handleUpdate = () => {
         if (!user) {
-            toast.error("You must be logged in to update an item. Please log in or sign up.");
+            toast.error('You must be logged in to update an item. Please log in or sign up.');
             router.push('/signin');
             return;
         }
@@ -148,7 +148,7 @@ function DetailRow({ icon: Icon, label, value }: { icon: any; label: string; val
         >
             <Icon className="w-6 h-6 mr-4 text-blue-500" />
             <span className="font-medium mr-2">{label}:</span>
-            <span className="text-gray-900 text-lg">{value}</span>
+            <span data-testid={`${label.toLowerCase().replace(' ', '-')}-value`} className="text-gray-900 text-lg">{value}</span>
         </motion.div>
     );
 }
